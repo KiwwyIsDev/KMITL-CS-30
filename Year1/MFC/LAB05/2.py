@@ -1,0 +1,6 @@
+n = int(input("Input : "))
+a = sum([n for n in range(1, n + 1)])
+b = int(n * (n + 1) / 2)
+print(f"Actual sum = {a}")
+print(f"Sum from formula = {b}")
+print(a == b)

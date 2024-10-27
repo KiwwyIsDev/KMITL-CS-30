@@ -1,0 +1,15 @@
+read left -> right
+start = "[" | stop = "]"
+have 1 num front [] = range
+if loop done count = 0
+if A count += 1
+if S count -= 1
+if O print count now {
+    0 = A
+    1 = B
+    2 = C 
+    25 = Z
+    +65 in char good way
+} else > 25 {
+    print(":)")
+}

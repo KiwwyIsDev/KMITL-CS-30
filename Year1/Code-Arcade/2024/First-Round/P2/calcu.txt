@@ -1,0 +1,4 @@
+1 piece = a baht
+promotion 2 piece = b baht
+audy buy n piece > 2
+if buy >= 2 piece can should a or b price
