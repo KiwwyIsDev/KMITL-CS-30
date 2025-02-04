@@ -1,0 +1,4 @@
+1.ทำการบ้านครี้งที่แล้วใหม่
+2.ทำAtm program ส่ง source code , output, flowchart 
+3.gcd program 
+4.n choose r program
