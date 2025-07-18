@@ -1,0 +1,324 @@
+connect   DatabaseUser/DatabasePassword
+** หมายเหตุ
+DatabaseUser  คือ  ผู้ใช้งานใน Database Server ซึ่งจะเป็นเจ้าของ Object ทั้งหมดที่ถูกสร้างขึ้นตามสิทธิการใช้งาน (System Privillege) และสามารถมอบสิทธิการใช้งาน ( Object Privillege) บน Object ที่เป็นเจ้าของให้กับ Database User ต่างๆ บน Database Server 
+DatabasePassword  คือ  รหัสผ่านของ Database Server บน Database Server
+
+-- การกำหนด สภาพแวดล้อมบน (เฉพาะ) Oracle DBMS
+set     pages   40  - กำหนดให้แสดงผล 40 บรรทัดต่อหน้า
+set    lines   135  - กำหนดให้แสดงผล 135 ตัวอักษรต่อบรรทัด
+set   pause   on  - กำหนดให้หยุดเพื่อกดปุ่มใดๆ ก่อนการแสดงผล
+set   serveroutput   on  - กำหนดให้แสดงผลลัพธ์บนหน้าจอ Client (Tier-1) ไปยังหน้าจอของ Database Server ด้วย
+clear   screen  - กำหนดให้ล้างข้อความบนหน้าจอ
+
+===>>  ตาราง
+SELECT   DeptName  , DeptCode , TotalEmp   , MgrEmpNo , MgrDate   FROM  Department;
+
+SELECT    FName  , Sex  , Salary , StartDate ,  ResignDate , WorkStatus
+FROM  Employee	ORDER  BY   FName;
+
+===>>  กรองแถว
+SELECT    FName  , Sex , Salary , StartDate ,  ResignDate  	FROM  Employee
+WHERE    WorkStatus = 'W'     ORDER  BY  FName;
+
+SELECT   FName  , Sex  ,  Salary , StartDate   FROM  Employee  
+WHERE   Sex =  'F' 	AND  WorkStatus = 'W' 
+ORDER  BY  FName;
+
+===>>  AND  ,  OR  ,  NOT
+SELECT   FName  , Sex , Salary , StartDate  FROM  Employee  
+WHERE  (Sex =  'F'  AND  Salary  >  20000 ) 	AND  WorkStatus = 'W'
+ORDER  BY   Sex  ,  Salary  DESC;
+
+SELECT  Sex ,  FName  , Salary  , StartDate   FROM  Employee  
+WHERE  (Sex =  'F'  OR  (Sex =  'M'  AND  Salary  >  20000 ))
+      AND  WorkStatus = 'W'
+ORDER  BY   Sex ,   FName ;
+
+===>>  IN , NOT IN
+SELECT   FName  , Sex  ,  Salary   ,  StartDate     FROM  Employee  
+WHERE  ((Salary  = 10000)  OR (Salary  = 13000)  OR  (Salary  = 15000))
+      AND  WorkStatus = 'W'  ORDER  BY   FName DESC , Salary ;
+
+SELECT   FName  , Sex , Salary  ,  StartDate   FROM  Employee  
+WHERE  (Salary  IN ( 10000 , 13000  , 15000))  	AND  WorkStatus = 'W'
+ORDER  BY   FName DESC , Salary ;
+
+===>>  BETWEEN ……..    AND   ………
+SELECT   FName  , Sex , Salary  , StartDate     FROM  Employee  
+WHERE  ((Salary >= 10000) AND  (Salary  <= 15000))	AND  WorkStatus = 'W' 
+ORDER  BY  FName , Salary ;
+
+SELECT   FName  , Sex , Salary  , StartDate     FROM  Employee  
+WHERE  (Salary   BETWEEN  10000  AND  15000) 	AND  WorkStatus = 'W' 
+ORDER  BY  FName , Salary ;
+
+===>>  Pattern-matching  Character (LIKE)
+SELECT   FName  , Sex , Salary  ,  StartDate     FROM  Employee  
+WHERE  FName  LIKE  '_ณ%'   AND    WorkStatus = 'W'   ORDER  BY  FName ;
+
+SELECT   FName  , Sex , Salary  ,  StartDate     FROM  Employee  
+WHERE  FName  LIKE  '___ณ%'   AND    WorkStatus = 'W'   ORDER  BY  FName ;
+
+SELECT   FName  , Sex , Salary  ,  StartDate     FROM  Employee  
+WHERE  FName  LIKE  '%ณ%'   AND    WorkStatus = 'W'   ORDER  BY  FName ;
+
+SELECT   FName  , Sex , Salary  , StartDate     FROM  Employee  
+WHERE  (FName  LIKE  'ก%') OR (FName  LIKE  'ค%')  OR (FName  LIKE  'บ%') 
+        OR   (FName  LIKE  'ป%')  AND    WorkStatus = 'W'   ORDER  BY  FName ;
+ 
+===>>  ฟังก์ชั่น
+SELECT  COUNT(*)  FROM  Employee;
+SELECT  COUNT(*)  FROM  Employee    WHERE   ResignDate  IS  NULL ;
+SELECT  COUNT(*)  FROM  Employee    WHERE   WorkStatus = 'W'   ;
+
+SELECT  COUNT(*)  FROM  Employee    WHERE   Sex  =  'F'   AND  WorkStatus = 'W'   ;
+
+SELECT  MIN(Salary)  ,  MAX(Salary) , AVG(Salary)  
+    FROM  Employee  WHERE  WorkStatus = 'W'  ;
+
+SELECT  STDDEV(Salary)  , VARIANCE(Salary)  FROM  Employee ;
+
+===>>  GROUP  BY
+SELECT  Count(*)  FROM  Employee
+WHERE  WorkStatus = 'W'   GROUP  BY  Sex ;
+
+SELECT   Sex   ,  Count(*)  FROM  Employee 
+WHERE  WorkStatus = 'W'   GROUP  BY  Sex ;
+
+SELECT  DeptCode  ,  COUNT(*)  FROM  Employee
+WHERE   WorkStatus = 'W'   GROUP  BY   DeptCode   ORDER  BY   DeptCode;
+
+SELECT   DeptName  ,  COUNT(*)  FROM  Employee , Department
+WHERE   WorkStatus = 'W'   AND   Employee.DeptCode = Department.DeptCode
+GROUP  BY   DeptName  ORDER  BY   DeptName;
+
+SELECT   MIN(DeptName)  A  , MAX(DeptName)  B , Employee.DeptCode   ,  COUNT(*)  
+FROM  Employee , Department
+WHERE   WorkStatus = 'W'   AND   Employee.DeptCode = Department.DeptCode
+GROUP  BY   Employee.DeptCode   ORDER  BY   Employee.DeptCode;
+
+SELECT   DeptCode  ,  Sex   , Count(*)    FROM  Employee  
+WHERE   Salary > 15000   AND  WorkStatus = 'W'   
+GROUP  BY  DeptCode , Sex		ORDER  BY  1  ,  2   DESC  ;
+
+===>>  HAVING
+SELECT  Count(*)   ,  DeptCode  FROM  Employee 
+WHERE  WorkStatus = 'W'   
+GROUP  BY   DeptCode			HAVING   Count(*)  BETWEEN  3  AND  5
+ORDER  BY   1  DESC  ,  DeptCode ;
+
+SELECT   Employee.DeptCode    , Min(DeptName)  ,   COUNT(*)  
+FROM  Employee , Department
+WHERE     WorkStatus = 'W'   AND   Employee.DeptCode = Department.DeptCode
+GROUP  BY   Employee.DeptCode  	HAVING   COUNT(*)    >= 3
+ORDER  BY   Employee.DeptCode;
+
+===>>  การตั้งชื่อเพื่ออ้างอิง Column   (Column  Alias   Name)
+SELECT   FName  , Sex , Salary   , StartDate  ,   (SYSDATE - StartDate)/365
+FROM  Employee  	WHERE   Salary > 15000     AND   WorkStatus = 'W'   
+ORDER  BY  5 ,  FName ;
+
+SELECT   FName  , Sex  , Salary   , StartDate  ,  (SYSDATE - StartDate)/365   “No of Day” 
+FROM  Employee  	WHERE   Salary > 15000     AND  WorkStatus = 'W'   
+ORDER  BY  'No of Day' ,  FName ;
+
+SELECT   FName  , Sex  , Salary   , StartDate  ,  (SYSDATE - StartDate)/365   No_Of_Day
+FROM  Employee  	WHERE   Salary > 15000     AND  WorkStatus = 'W'   
+ORDER  BY  No_Of_Day  ,  FName ;
+
+SELECT  FName ,  Sex ,  Salary  , TO_CHAR(ResignDate,'DD-Mon-YYYY')  วันลาออก , 
+	TO_CHAR(StartDate,'YYYY:MON:DD')  วันเริ่มทำงาน, 
+	'เป็นจำนวน   '  ,  (ResignDate  - StartDate)     WorkDay , 'วัน'
+FROM  Employee  
+WHERE  WorkStatus = 'Q'    AND   (ResignDate  - StartDate)  > 60 ;
+
+
+===>>  CARTESIAN  PRODUCT  หรือ  CROSS  JOIN
+
+SELECT  Employee.EmpNo , FName , LName , Sex , Department.DeptCode , DeptName
+FROM      Employee , Department;
+
+SELECT  Employee.EmpNo , FName , LName , Sex , Department.DeptCode , DeptName
+FROM      Employee  CROSS  JOIN  Department;
+
+
+===>>  การเชื่อมตาราง (JOIN)
+
+SELECT  Employee.EmpNo , FName , LName , Sex , Department.DeptCode , DeptName
+FROM      Employee , Department  
+WHERE   Employee.DeptCode =  Department.DeptCode; 
+
+SELECT  FName ,  LName ,  DeptName  ,  MgrDate   FROM  Employee , Department
+WHERE  Department.MgrEmpNo  =  Employee.EmpNo		ORDER  BY  1;
+
+SELECT   MIN(DeptName) , Count(*)   FROM  Department   ,   Employee
+WHERE   (Salary > 15000   AND  WorkStatus = 'W'  )
+     AND   (Department.DeptCode  =  Employee.DeptCode) 
+GROUP  BY   Department.DeptCode
+ORDER  BY  2  DESC  ,  1   ;
+
+
+SELECT  Department.DeptCode , MIN(DeptName) , Sex , Count(*) 
+FROM      Department , Employee 
+WHERE  Department.DeptCode     =    Employee.DeptCode 	  AND   WorkStatus = 'W'  
+GROUP  BY  Department.DeptCode  , Sex 
+ORDER  BY  1  , Sex  ;
+
+===>>  Self  JOIN and  Alias  Table
+SELECT   Mgr.EmpNo  ,  Mgr.FName ,  Emp.EmpNo ,  Emp.FName  ,  Emp.Salary 
+FROM       Employee  Emp , Employee  Mgr
+WHERE    Emp.SuperEmpNo  =  Mgr.EmpNo  	    AND      Emp.WorkStatus = 'W'  
+ORDER  BY  Mgr.EmpNo  ,  Emp.EmpNo ;
+
+===>>  SUBQUERY
+SELECT   *  FROM  Employee  Emp
+WHERE  WorkStatus = 'W'  
+      AND    EmpNo  IN  
+		(SELECT  SuperEmpNo  FROM  Employee) ;
+
+SELECT   FName  ,  Salary   FROM  Employee 
+WHERE   WorkStatus = 'W'  
+AND     Salary =      (SELECT  MIN(Salary)  FROM  Employee)
+ORDER  BY   1 ;
+
+SELECT   FName  ,  Salary   FROM  Employee 
+WHERE   WorkStatus = 'W'  
+      AND     Salary  <= ALL  (SELECT  Salary  FROM  Employee)
+ORDER  BY   1 ;
+
+SELECT   FName  ,  Salary   FROM  Employee 
+WHERE   WorkStatus = 'W'   AND     Salary  = 
+	(SELECT  MIN(Salary)  FROM  Employee
+	WHERE  Salary  >ALL
+		(SELECT  Salary  FROM  Employee
+		WHERE  Salary  
+			<=ALL (SELECT  Salary  FROM  Employee)))
+ORDER  BY   1 ;
+
+SELECT   FName  ,  Salary   FROM  Employee 
+WHERE   WorkStatus = 'W'   AND     Salary  <=ALL 
+	(SELECT  Salary  FROM  Employee
+	WHERE  Salary  >ALL
+		(SELECT  Salary  FROM  Employee
+		WHERE  Salary  <=ALL 
+			(SELECT  Salary  FROM  Employee)))
+AND   Salary  >ALL
+		(SELECT  Salary  FROM  Employee
+		WHERE  Salary  <=ALL (SELECT  Salary  FROM  Employee))
+ORDER  BY   1 ;
+
+ 
+===>>  CORRELATED  SUBQUERY
+
+SELECT  DeptCode , EmpNo , FName , Sex , Salary , StartDate , ResignDate  
+FROM  Employee
+WHERE  WorkStatus = 'W'  
+      AND   EmpNo  IN
+	(SELECT   MgrEmpNo   FROM  Department  
+	 WHERE   Department.DeptCode =  Employee.DeptCode)
+ORDER  BY   DeptCode , EmpNo;
+
+SELECT  DeptCode , EmpNo , FName , Sex , Salary , StartDate , ResignDate  
+FROM  Employee
+WHERE  WorkStatus = 'W'  
+     AND   EXISTS
+	(SELECT   MgrEmpNo   FROM  Department  
+	 WHERE   MgrEmpNo =  EmpNo
+	       AND   Department.DeptCode =  Employee.DeptCode)
+ORDER  BY   DeptCode , EmpNo;
+
+
+===>>  ฟังก์ชั่น  DECODE 
+SELECT DeptCode, EmpNo, FName, Sex, DECODE(SEX,'M',' ชาย ','F',' หญิง ')  
+FROM  Employee
+WHERE  WorkStatus = 'W'  ;
+
+===>>  ฟังก์ชั่น  NVL  และฟังก์ชั่น   NVL2
+SELECT   EmpNo , FName , Sex , DECODE(WorkStatus,'W','- ทำงาน -','Q','- ออกจากงาน -') , 
+	NVL(TO_CHAR(ResignDate),'  Work ')    FROM  Employee
+ORDER BY  1  ;
+
+SELECT   EmpNo , FName , Sex , DECODE(WorkStatus,'W','- ทำงาน -','Q','- ออกจากงาน -') , 
+	NVL2(TO_CHAR(ResignDate), '    Quit ',' == Work ==') FROM  Employee
+ORDER BY  1  ;
+
+
+===>>  Outer  JOIN
+SELECT   Super.EmpNo  ,  Super.FName ,  Emp.EmpNo ,  Emp.FName  ,  Emp.Salary 
+FROM       Employee  Emp , Employee  Super
+WHERE    Emp.SuperEmpNo  =  Super.EmpNo  
+     AND      Emp.WorkStatus = 'W'  
+ORDER  BY  Super.EmpNo  ,  Emp.EmpNo ;
+
+===>>  Left  Outer  Join (จะเอา  Table  ฝั่งซ้ายเป็นหลัก)
+SELECT  Super.EmpNo , NVL(Super.FName,'No  Data'), 
+	  Emp.EmpNo, Emp.FName,  Emp.Salary 
+FROM       Employee  Emp , Employee  Super
+WHERE    Emp.SuperEmpNo   =  Super.EmpNo(+)  
+      AND      Emp.WorkStatus = 'W'  
+ORDER  BY  Super.EmpNo  ,  Emp.EmpNo ;
+
+
+SELECT Super.EmpNo , NVL(Super.FName,'No  Data'), 
+	  Emp.EmpNo, Emp.FName,  Emp.Salary 
+FROM      Employee  Emp LEFT  OUTER  JOIN  Employee  Super  
+			ON  (Emp.SuperEmpNo   =  Super.EmpNo)  
+WHERE    Emp.WorkStatus = 'W'  
+ORDER  BY  Super.EmpNo  ,  Emp.EmpNo ;
+
+ ===>>  Right  Outer  Join (จะเอา  Table  ฝั่งขวาเป็นหลัก)
+SELECT  Super.EmpNo , NVL(Super.FName,'No  Data'), 
+	  Emp.EmpNo, Emp.FName,  Emp.Salary 
+FROM       Employee  Emp , Employee  Super
+WHERE    Super.EmpNo(+)  =  Emp.SuperEmpNo   
+     AND      Emp.WorkStatus = 'W'  
+ORDER  BY  Super.EmpNo  ,  Emp.EmpNo ;
+
+SELECT  Super.EmpNo , NVL(Super.FName,'No  Data'), 
+	   Emp.EmpNo, Emp.FName,  Emp.Salary 
+FROM     Employee  Super  RIGHT  OUTER  JOIN  Employee  Emp   
+			  ON  (Emp.SuperEmpNo   =  Super.EmpNo)  
+WHERE    Emp.WorkStatus = 'W'  
+ORDER  BY  Super.EmpNo  ,  Emp.EmpNo ;
+
+==>>  โจทย์    Outer Join  แบบ  5  ตาราง
+ให้เขียน  SQL  Command  แสดงรายละเอียดว่า แต่ละแผนกมีพนักงานคนไหนสังกัดบ้าง  และให้แสดงข้อมูล จังหวัดและรายละเอียดความเชี่ยวชาญของพนักงานด้วย
+ตาราง  A  -  Employee  (พนักงานทุกคนต้องสังกัดแผนก)
+			 (พนักงานทุกคนต้องมีจังหวัดที่ตนเองเกิด)
+			(มีพนักงานบางคนไม่มีความเชี่ยวชาญ)
+ตาราง  B  - Department   (มีบางแผนกไม่มีพนักงานสังกัด)
+ตาราง  C  - Province  (ข้อมูลจังหวัด)
+ตาราง  D  - Expert   (ความเชี่ยวชาญ  หรือความชำนาญ)
+ตาราง  E  - TranExpert     (รายละเอียดความเชี่ยวชาญ ของพนักงานแต่ละคน)
+
+ 
+CREATE  TABLE  ExpertTopic
+(Expert_Code		NUMBER(3),
+ Expert_Name		Varchar2(30));
+
+INSERT  INTO ExpertTopic VALUES (ExpertTopic_Seq.Nextval , 'Oracle 10g DBMS');
+INSERT  INTO ExpertTopic VALUES (ExpertTopic_Seq.Nextval , 'SQL Server  DBMS');
+INSERT  INTO ExpertTopic VALUES (ExpertTopic_Seq.Nextval , 'MySQL  DBMS');
+INSERT  INTO ExpertTopic VALUES (ExpertTopic_Seq.Nextval , 'Java  Programming ');
+
+
+
+===>>  กรณีน่าสนใจ
+SELECT   Super.EmpNo  ,  Super.FName , Super.Salary  , Emp.EmpNo ,  
+	   Emp.FName  ,  Emp.Salary 
+FROM      Employee  Emp , Employee  Super
+WHERE    Emp.SuperEmpNo  =  Super.EmpNo  
+    AND     Emp.Salary   >   Super.Salary
+    AND      Emp.WorkStatus = 'W'  
+ORDER  BY  Super.EmpNo  ,  Emp.EmpNo ;
+
+
+SELECT   DeptCode , EmpNo  , FName  ,  Salary   	
+FROM  Employee   Emp
+WHERE   WorkStatus = 'W'  	    AND    Salary >   
+      (SELECT  Salary  FROM  Employee  Super
+	WHERE  Super. EmpNo  =  Emp.SuperEmpNo)
+ORDER  BY   1 ;
+
+
+
