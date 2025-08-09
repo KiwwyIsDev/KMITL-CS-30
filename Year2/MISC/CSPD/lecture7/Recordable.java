@@ -1,0 +1,3 @@
+interface Recordable {
+    void record();
+}
