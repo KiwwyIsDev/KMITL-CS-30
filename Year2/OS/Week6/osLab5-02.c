@@ -4,6 +4,5 @@
 void main() {
 	printf("PID: %d\n", getpid());
 	printf("HELLO ...\n");
-	// execlp("echo", "echo", "... CS", NULL);
-	printf("... KMITL\n");
+	execlp("echo", "echo", "... CS\n... KMITL", NULL);
 }

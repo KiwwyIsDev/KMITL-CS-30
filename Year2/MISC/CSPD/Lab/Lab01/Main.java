@@ -1,23 +1,31 @@
-class Notification {
-    public String title;
-    public String message;
+// Interface กำหนดพฤติกรรมที่ต้องมี
+interface NotificationSender {
+    void send(); // ทุกคลาสต้องมีวิธีส่ง
+}
+
+// Abstract class เก็บข้อมูลพื้นฐานร่วมกัน
+abstract class Notification implements NotificationSender {
+    protected String title;
+    protected String message;
 
     public Notification(String title, String message) {
         this.title = title;
         this.message = message;
     }
 
-    public void send() {
-        System.out.println("[Generic] " + title + " - " + message);
+    // อาจมีเมธอดทั่วไปที่ใช้ได้เลย (optional)
+    public void preview() {
+        System.out.println("Preview: " + title + " - " + message);
     }
 }
 
+// สืบทอดและ implement send()
 class EmailNotification extends Notification {
-    String email;
-    String subject;
+    private String email;
+    private String subject;
 
     public EmailNotification(String email, String subject, String message) {
-        super(subject, message);
+        super(subject, message); // subject ใช้เป็น title
         this.email = email;
         this.subject = subject;
     }
@@ -29,7 +37,7 @@ class EmailNotification extends Notification {
 }
 
 class SmsNotification extends Notification {
-    String phoneNumber;
+    private String phoneNumber;
 
     public SmsNotification(String phoneNumber, String message) {
         super("SMS", message);
@@ -43,7 +51,7 @@ class SmsNotification extends Notification {
 }
 
 class PushNotification extends Notification {
-    String deviceId;
+    private String deviceId;
 
     public PushNotification(String deviceId, String message) {
         super("Push", message);
@@ -56,16 +64,15 @@ class PushNotification extends Notification {
     }
 }
 
+// ทดสอบการทำงาน
 public class Main {
     public static void main(String[] args) {
-        Notification n1 = new Notification("Generic", "Hello!");
-        Notification n2 = new EmailNotification("user@example.com", "Welcome", "Thanks for joining.");
-        Notification n3 = new SmsNotification("+66900000000", "Your OTP is 123456");
-        Notification n4 = new PushNotification("DEVICE-ABC", "You have a new message");
+        NotificationSender n1 = new EmailNotification("user@example.com", "Welcome", "Thanks for joining.");
+        NotificationSender n2 = new SmsNotification("+66900000000", "Your OTP is 123456");
+        NotificationSender n3 = new PushNotification("DEVICE-ABC", "You have a new message");
 
         n1.send();
         n2.send();
         n3.send();
-        n4.send();
     }
 }
